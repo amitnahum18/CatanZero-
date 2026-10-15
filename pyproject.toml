@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "catanzero"
+version = "0.1.0"
+description = "Reproducible Catan simulations powered by Catanatron"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["catanatron==3.3.0"]
+
+[project.scripts]
+catanzero = "catanzero.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8,<10"]
+
+[tool.uv.sources]
+catanatron = { git = "https://github.com/bcollazo/catanatron.git", rev = "ecf931181b9a65bb4116a2153fb78c16f1438e00" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+catanzero = ["replay.html", "play_web/*.html", "play_web/*.css", "play_web/*.js"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

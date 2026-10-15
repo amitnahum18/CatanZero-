@@ -1,0 +1,13 @@
+{
+  "name": "catanzero-pages",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "python tools/build_pages.py",
+    "test:wasm": "node tests/check_pages_runtime.mjs"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "6.2.5",
+    "pyodide": "314.0.7"
+  }
+}

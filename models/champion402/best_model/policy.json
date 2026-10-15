@@ -1,0 +1,9 @@
+{
+  "kind": "lightgbm",
+  "scale": 1.4757017551196938,
+  "version": 402,
+  "mix": 0.2,
+  "max_depth": 10,
+  "input_columns": 264,
+  "scores": "action preferences, not calibrated probabilities"
+}

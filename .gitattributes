@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.joblib -text
+*.model -text
+*.png -text
+*.zip -text
+*.wasm -text

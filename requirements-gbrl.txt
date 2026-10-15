@@ -1,0 +1,4 @@
+# Extend the existing local tracking environment; simulator remains in .venv.
+-r requirements-mlflow.txt
+gbrl==1.1.9
+torch==2.13.0

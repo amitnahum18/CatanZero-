@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#18242e">
+  <title>CatanZero — Play</title>
+  <link rel="stylesheet" href="/style.css?v=table-5-bot-count">
+  <script src="/app.js?v=table-5-bot-count" defer></script>
+</head>
+<body>
+<header id="topbar"><a class="brand" href="/">CATANZERO</a><span id="match-label">Play against bots</span><div class="header-buttons"><button id="rules-open">Rules</button><button id="new-game" hidden>New game</button></div></header>
+<main id="game-app">
+  <section id="table-area" aria-label="Game table">
+    <div id="opponent-rail" hidden><div id="players" aria-label="Players and scores"></div></div>
+    <div class="board-bar"><strong id="board-status" role="status" aria-live="polite">Board preview</strong><span id="turn-counter">First to 10 points</span></div>
+    <div class="board-area">
+      <svg id="board" viewBox="-320 -290 640 580" role="group" aria-label="Catan board. Select a highlighted location to build.">
+        <defs><filter id="piece-shadow"><feDropShadow dx="0" dy="2" stdDeviation="1" flood-opacity=".2"/></filter></defs>
+        <g id="ports"></g><g id="tiles"></g><g id="roads"></g><g id="buildings"></g><g id="robber"></g><g id="targets"></g><g id="preview-piece" pointer-events="none"></g>
+      </svg>
+      <span id="busy-chip" hidden>Bot thinking…</span>
+    </div>
+    <div class="table-status"><div class="roll-display" id="roll-display" role="status" aria-live="polite" aria-atomic="true" aria-label="No roll yet"><div id="dice" aria-hidden="true"></div><div class="roll-summary"><span id="roll-label">Last roll</span><strong id="roll-total">–</strong></div><span id="roll-note">No roll yet</span></div><span id="board-tip">Choose your opponents to start.</span><span id="deck-count" hidden></span></div>
+  </section>
+  <aside id="setup" class="panel">
+    <h1>New game</h1><label for="human-name">Your name</label><input id="human-name" maxlength="24" placeholder="You" autocomplete="given-name">
+    <label>Number of bots</label><div class="count-picker" role="group" aria-label="Number of bots"><button data-count="1" aria-pressed="true">1</button><button data-count="2" aria-pressed="false">2</button><button data-count="3" aria-pressed="false">3</button></div>
+    <p class="note">All bots use Model 402.</p><p id="variant-note" class="note"></p><button id="start-game" class="primary">Start game</button><p class="note">Saved automatically on this computer.</p>
+  </aside>
+  <aside id="dashboard" aria-label="Your hand and actions" hidden>
+    <section class="hand-section"><div class="section-title"><strong>Your resources</strong><span id="hand-count"></span></div><div id="hand"></div></section>
+    <section class="turn-section" aria-live="polite">
+      <div id="placement-panel" hidden><div><strong id="placement-title"></strong><small>Confirm the highlighted location.</small></div><button id="confirm-placement" class="primary">Build</button><button id="cancel-placement" aria-label="Cancel placement">Cancel</button></div>
+      <div id="quick-controls"><div><strong id="quick-title">Your turn</strong><small id="quick-hint"></small></div><button id="quick-primary" class="primary">Roll dice</button><button id="quick-end" hidden>End turn</button></div>
+      <div id="forced-actions" hidden></div>
+      <button id="retry-bot" hidden>Retry bot move</button>
+    </section>
+    <section class="build-section"><div class="section-title"><strong>Build & buy</strong><span id="build-note">Select an item, then a location.</span></div><div id="purchases"></div></section>
+    <section class="trade-section"><div class="section-title"><strong>Bank trade</strong><span id="trade-ratio">4:1</span></div><div class="trade-row"><label for="trade-give">Give<select id="trade-give" aria-label="Resource to give"></select></label><span class="trade-arrow" aria-hidden="true">→</span><label for="trade-get">Receive<select id="trade-get" aria-label="Resource to receive"></select></label><button id="trade-submit">Trade</button></div><p id="trade-message" class="note"></p></section>
+    <section class="dev-section"><div class="section-title"><strong>Development cards</strong><span id="dev-count">0</span></div><div id="dev-cards"></div><div id="special-actions" hidden></div></section>
+    <section class="activity-section"><div id="latest-event" role="status" aria-live="polite">Game ready.</div><details id="history"><summary>Activity log</summary><ol id="log"></ol></details></section>
+  </aside>
+</main>
+<div id="toast" role="alert" hidden></div>
+<dialog id="rules"><div class="dialog-heading"><h2>How to play</h2><button class="rules-close" aria-label="Close rules">Close</button></div><p>Reach 10 victory points to win. Place two settlements and two roads during setup, then roll dice to collect resources and expand.</p><ul><li>Settlements score 1 point. Cities score 2 and produce twice as much.</li><li>Leave at least one empty intersection between settlements and cities.</li><li>On a 7, players holding more than 7 resources discard half. The active player then moves the robber.</li><li>Trade with the bank or use ports for better rates.</li><li>New development cards cannot be played until your next turn. Play at most one per turn.</li><li>Longest Road and Largest Army are worth 2 points each.</li></ul><p>Select a build item, select a highlighted location, then confirm. All building costs and bank trades are shown on the main screen.</p><p class="note">This version supports bank and port trades. One human plays against 1–3 bots.</p><button class="primary rules-close">Close</button></dialog>
+<dialog id="new-dialog"><h2>Start a new game?</h2><p>The current game stays saved on this computer.</p><div class="dialog-buttons"><button id="cancel-new">Keep playing</button><button id="confirm-new" class="primary">New game</button></div></dialog>
+</body>
+</html>

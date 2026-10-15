@@ -1,0 +1,7 @@
+# Dedicated tracking/training environment; pinned simulator stays in .venv.
+mlflow==3.16.1
+scikit-learn==1.7.1
+numpy==1.26.4
+scipy==1.15.3
+joblib==1.4.2
+cloudpickle==3.0.0
