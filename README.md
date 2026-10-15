@@ -1,283 +1,189 @@
 # CatanZero
 
-## Play online
+A playable Catan browser game and a classical machine-learning bot built on
+[Catanatron](https://github.com/bcollazo/catanatron).
 
-[Play CatanZero](https://amitnahum18.github.io/CatanZero-/) — one human against
-1–3 Model 402 bots. The game runs entirely in your browser, with local autosave.
-The first visit downloads the game engine; no server account is needed.
+**Model 402 achieved a 57% win rate against one native F bot: 570 wins in
+1,000 new two-player games.** It selects legal moves without forward search
+or neural networks.
 
-[Deployment and build instructions](docs/github-pages.md) ·
-[Repository layout](docs/repository-layout.md) ·
-[Selected model](models/champion402/README.md)
+**[Play CatanZero online](https://amitnahum18.github.io/CatanZero-/)**
 
-## משחק מול הבוטים
+Choose **1, 2 or 3 bots**. Every bot uses the same frozen Model 402; there is
+no difficulty selector. The game runs entirely in your browser, including the
+rules engine and model inference. No account or running backend is required.
 
-להפעלת אתר המשחק המקומי, עם בחירת מספר יריבים:
+## Browser game
 
-```powershell
-.\play.cmd
-```
+- Responsive board with roads, settlements, cities, ports and the robber.
+- Clear pip dice, a separate total and a special indicator for 7.
+- Visible resources, building prices, development cards and an action log.
+- Legal bank and port trades at 4:1, 3:1 and 2:1 rates.
+- Select a legal building location, preview it, then confirm.
+- Automatic browser saves and saved-game restoration.
+- Engine-enforced placement distance, costs, card timing and victory rules.
 
-פותחים את `http://127.0.0.1:8787/`, בוחרים 1–3 בוטים ומשחקים על הלוח.
-כל הבוטים משתמשים במודל 402, ללא בחירת רמת קושי. המשחק נשמר אוטומטית.
-[הוראות משחק והפעלה](docs/human-play.md).
+The first visit downloads about 16 MB of game/runtime files before HTTP
+compression. A Web Worker keeps game execution off the UI thread. Saves stay
+on the current device; clearing site data removes them. Direct player-to-player
+trading is not implemented. Two-player matches use the simulator's variant on
+the standard board.
 
-תיוג נוסף באמצעות השוואת חלופות והמשכים עד ניצחון זמין ב־
-[docs/search-labels.md](docs/search-labels.md). הוא שומר את הציונים המקוריים,
-מוסיף אומדני ניצחון ואי־ודאות, ומריץ את ההמשכים מקומית במקביל.
+The UI includes responsive phone layouts; physical-phone testing has not yet
+been completed. A modern browser supporting WebAssembly, module workers and
+IndexedDB is required.
 
-חישוב תיוג משוקלל של יוריסטיקה ותוצאה סופית זמין במודול `catanzero.scoring`.
-ראו [הגדרה, קלט ודוגמאות הרצה](docs/weighted-scoring.md).
+## Model 402 and results
 
-איסוף משחקים ודוגמאות עם יוריסטיקה ושקלול זמין במודול `catanzero.dataset`.
-ראו [הרצת פיילוט, מבנה הדאטה ומגבלות](docs/dataset-pilot.md).
-אפשר להוסיף `--workers 4` או `--workers 8` לפקודת `catanzero.dataset`
-כדי לאסוף ולתייג משחקים במקביל על המחשב המקומי.
+| Component | Trees | Maximum depth | Role |
+|---|---:|---:|---|
+| LightGBM ranking model | 114 | 10 | Rank legal candidate actions |
+| ExtraTrees regressor | 64 | 10 | Add a correction learned from game returns |
 
-סביבת סימולציה של קאטן, מבוססת על [Catanatron](https://github.com/bcollazo/catanatron).
-המודל המומלץ כרגע הוא 402: שילוב של LightGBM ו־ExtraTrees, שניצח 56.4% מול F אחד
-ב־500 משחקים דו־שחקניים ו־31.6% מול שלושה F ב־500 משחקי ארבעה שחקנים.
-לסיכום ההישגים, הניסויים שנכשלו והמודל הנבחר, ראו [מצב הפרויקט](docs/PROJECT_STATUS.md).
-
-## הרצה מהירה ב־Windows
-
-מתוך תיקיית הפרויקט ב־PowerShell:
-
-לצפייה במשחק האחרון שנשמר:
-
-```powershell
-.\watch.cmd
-```
-
-הפקודה מפעילה שרת מקומי ופותחת בדפדפן את `http://127.0.0.1:8765/`.
-משאירים את חלון ההרצה פתוח בזמן הצפייה. `Ctrl+C` עוצר את השרת.
-השרת נגיש רק מהמחשב המקומי ומגיש רק את תצוגת המשחק.
-
-לצפייה במשחק מסוים:
-
-```powershell
-.\watch.cmd runs\my-run\game_0000.json
-```
-
-להרצת משחק חדש:
-
-```powershell
-.\run.cmd --seed 42
-```
-
-הסביבה `.venv` כבר הותקנה במחשב הנוכחי. הסקריפט משתמש בה ישירות, ללא צורך
-בהפעלת `Activate.ps1` או בשינוי מדיניות הרצת סקריפטים.
-
-משחק מלא עם שמירת מצב הלוח וכל המהלכים:
-
-```powershell
-.\run.cmd --seed 42 --save-games
-```
-
-משחק מלא עם תצוגת לוח שאפשר לנגן בדפדפן:
-
-```powershell
-.\run.cmd --seed 42 --replay
-```
-
-פותחים את `game_0000.html` בתיקיית התוצאות. התצוגה כוללת את הלוח, הכבישים,
-היישובים, הערים, השודד, המשאבים והניקוד בכל מהלך. אפשר לנגן ולעצור, לבחור מהירות,
-לגרור את ציר הזמן או להתקדם מהלך אחר מהלך. הקובץ עצמאי ועובד ללא אינטרנט או שרת.
-
-ליצירת תצוגה ממשחק שכבר נשמר:
-
-```powershell
-.\.venv\Scripts\python.exe -m catanzero.viewer runs\my-run\game_0000.json
-```
-
-התצוגה משחזרת את תוצאות הקוביות והקלפים שהוקלטו ובודקת שמצב הסיום זהה למשחק השמור.
-
-סדרת 100 משחקים:
-
-```powershell
-.\run.cmd --games 100 --seed 42
-```
-
-הדפסת כל פעולה, כולל תוצאות הקוביות ופעולות אקראיות אחרות:
-
-```powershell
-.\run.cmd --seed 42 --trace
-```
-
-הפקודה המקבילה ללא הסקריפט:
-
-```powershell
-.\.venv\Scripts\python.exe -m catanzero --seed 42
-```
-
-הפקודות `run.cmd` ו־`watch.cmd` מיועדות לסימולציה אוטומטית ולשידור חוזר.
-למשחק אנושי מול הבוטים משתמשים ב־`play.cmd` כפי שמוסבר בתחילת הדף.
-
-## התקנה מחדש
-
-נדרשים Python 3.11 ומעלה, Git ו־[uv](https://docs.astral.sh/uv/).
-מתוך תיקיית הפרויקט:
-
-```powershell
-uv sync --locked --cache-dir .uv-cache
-.\run.cmd --seed 42
-```
-
-התקנה ראשונה זקוקה לחיבור אינטרנט. אחרי ההתקנה אפשר להריץ משחקים ללא אינטרנט.
-התלויות נעולות ב־`uv.lock`, והמנוע נעול ל־commit
-`ecf931181b9a65bb4116a2153fb78c16f1438e00` של Catanatron 3.3.0.
-החבילה העדכנית מותקנת מהמאגר הרשמי; משתמשים רק בתלויות הליבה.
-
-## הגדרות ותוצאות
-
-ברירת המחדל היא לוח הבסיס, ארבעה שחקנים אקראיים, סדר ישיבה מעורבב ויעד של 10
-נקודות ניצחון. המנוע מטפל בהקמה, קוביות, משאבים, בנייה, שודד, קלפי פיתוח,
-הדרך הארוכה ביותר, הצבא הגדול ביותר ומסחר עם הבנק והנמלים.
-השחקנים האקראיים הנוכחיים אינם יוזמים הצעות מסחר בין שחקנים.
-
-| אפשרות | ברירת מחדל | משמעות |
-| --- | --- | --- |
-| `--games N` | 1 | מספר משחקים ברצף |
-| `--players N` | 4 | 2, 3 או 4 שחקנים; 2 הוא וריאנט סימולציה על לוח הבסיס |
-| `--seed N` | נוצר אוטומטית | seed למשחק הראשון; בכל משחק נוסף מוסיפים 1 |
-| `--max-turns N` | 1000 | מגבלת תורות שהסתיימו, לפי ספירת המנוע |
-| `--max-actions N` | 100000 | מגבלת החלטות/פעולות, כולל הקמה ופעולות מחוץ לתור |
-| `--output PATH` | תיקייה חדשה תחת `runs/` | חייב להיות נתיב שעדיין אינו קיים |
-| `--save-games` | כבוי | שמירת מצב מנוע מלא ויומן פעולות לכל משחק |
-| `--replay` | כבוי | שמירת משחקים ותצוגות לוח עצמאיות ב־HTML |
-| `--trace` | כבוי | הדפסת כל פעולה לטרמינל |
-
-בכל הרצה נוצרות התוצאות הבאות:
-
-- `config.json`: הגדרות, seed, גרסת Python וגרסת המנוע.
-- `results.jsonl`: שורה לכל משחק, עם מנצח, ניקוד, סדר ישיבה, מספר תורות ופעולות וזמן ריצה.
-- `summary.json`: מספר ניצחונות לפי צבע, משחקים שהושלמו ומשחקים שנעצרו במגבלה.
-- `game_0000.json` וכו׳: עם `--save-games`, מצב הלוח, הקלפים, מצב המחולל האקראי והיסטוריית הפעולות בפורמט של המנוע.
-- `game_0000.html` וכו׳: עם `--replay`, תצוגת משחק אינטראקטיבית בדפדפן.
-
-קובצי מצב מלאים כוללים גם מידע מוסתר של השחקנים ומיועדים לבדיקה ולניתוח הסימולציה.
-`victory_points` כולל קלפי נקודות מוסתרים; `public_victory_points` הוא הניקוד הגלוי.
-משחק שנעצר במגבלה נשמר עם `winner: null` וסיבה `turn_limit` או `action_limit`.
-זה אינו ניצחון או תיקו שנקבע לפי הניקוד. קוד יציאה 0 מציין שההרצה הושלמה,
-גם אם חלק מהמשחקים נעצרו במגבלה.
-
-לשחזור, משתמשים באותו seed, הגדרות וגרסאות נעולות. השחקן `SimulationRandomPlayer`
-בוחר באופן אחיד מרשימת פעולות מסודרת, כדי לנטרל הבדלים בסדר קבוצות בין תהליכי Python.
-מזהי המשחק, חותמות הזמן וזמני הריצה משתנים בין הרצות. תאימות זהה בין גרסאות Python
-או בין גרסאות מנוע שונות אינה מובטחת.
-
-## שימוש מתוך Python
-
-```python
-from catanzero.simulation import SimulationConfig, create_game, run_game
-
-game, result = run_game(SimulationConfig(), seed=42)
-print(result.winner, result.victory_points)
-
-# הרצה צעד אחר צעד:
-game = create_game(SimulationConfig(), seed=42)
-record = game.play_tick()
-print(record)
-print(game.playable_actions)
-```
-
-טעינת מצב שמור והמשך סימולציה:
-
-```python
-import json
-from pathlib import Path
-from catanatron import Color
-from catanatron.serialization import state_from_json
-from catanzero.simulation import SimulationRandomPlayer
-
-document = json.loads(Path("runs/my-run/game_0000.json").read_text(encoding="utf-8"))
-players = [SimulationRandomPlayer(Color[color]) for color in document["colors"]]
-game = state_from_json(document, players)
-if game.winning_color() is None:
-    record = game.play_tick()
-```
-
-## בדיקות ומבנה
-
-```powershell
-.\.venv\Scripts\python.exe -m pytest -q
-```
-
-הבדיקות מכסות ניצחון במשחק מלא, מגבלות עצירה, שחזור בין תהליכים בעלי hash seed שונה,
-טעינה והמשך זהים מ־JSON, שמירת סדרת משחקים, מניעת דריסת תוצאות וקלט לא תקין.
+Each candidate receives **264 numeric predecision features**: the acting
+player's hand, public opponents, board position, resources, construction
+capacity and the candidate action. The browser shares the original feature
+encoder and uses a numeric export of the frozen trees.
 
 ```text
-src/catanzero/simulation.py   API של יצירת משחק, הרצה וסיכום
-src/catanzero/cli.py          פקודת הרצה ושמירת תוצאות
-src/catanzero/viewer.py       שחזור המהלכים וייצוא תצוגת HTML
-src/catanzero/replay.html     תצוגת הלוח ובקרי הניגון
-tests/test_simulation.py     בדיקות אינטגרציה
-pyproject.toml / uv.lock     חבילה ותלויות נעולות
-run.cmd                     קיצור הרצה ל־Windows
-runs/                       תוצאות מקומיות, לא לניהול גרסאות
+action_score = LightGBM(raw_features) / 1.4757017551196938
+             + 0.2 * ExtraTrees(raw_features)
 ```
 
-## דאטה ממהלכי AB:2
+The bot selects the highest-scoring legal action. Scores are preferences,
+not calibrated win probabilities. No forward simulation or weight update occurs
+during inference. The historical normalizer records the feature schema;
+402 uses raw features, matching the original selected policy.
 
-המרת משחקי ההשוואה השמורים לדוגמאות אימון, עם שמונה דגימות מידע נסתר לכל החלטה:
+| Evaluation | Wins | Win rate |
+|---|---:|---:|
+| Latest independent confirmation against **one native F bot**, two players | **570 / 1,000** | **57.0%** |
+| Earlier test against one native F bot, two players | 282 / 500 | 56.4% |
+| Separate test against **three native F bots**, four players | 158 / 500 | 31.6% |
 
-```powershell
-.\.venv\Scripts\python.exe -m catanzero.tournament_dataset runs/bot-comparison-12 --output runs/quality-AB2-12 --belief-samples 8 --workers 4
-.\.venv\Scripts\python.exe tools/audit_quality_dataset.py runs/quality-AB2-12
+The latest test used new boards, balanced seats and frozen weights. Its exact
+95% confidence interval is **53.8647%-60.0940%**. The measured result is 57%;
+the test does not establish a true win rate above 55% at that confidence level.
+Player counts and evaluation samples are reported separately. Native F and
+F_static are different opponents.
+
+See the [confirmation report](docs/402-confirmation-f-1000-20261015.md),
+[model files](models/champion402/README.md) and
+[project history](docs/PROJECT_STATUS.md) for the experiments and limitations.
+
+## Run locally
+
+Install Git, Python 3.12 and [uv](https://docs.astral.sh/uv/), then run:
+
+```sh
+git clone https://github.com/amitnahum18/CatanZero-.git
+cd CatanZero-
+uv sync --frozen
+uv run --with-requirements requirements-play.txt python -m catanzero.play_server --open
 ```
 
-בקובץ `candidate.moves.jsonl.gz` נשמרות החלטות AB:2 בלבד. יתר המהלכים, הלוחות,
-והמשחקים המקוריים זמינים באותה תיקייה. הציון משקלל 50% היוריסטיקה ו־50% תוצאה
-סופית, ואינו הסתברות מכוילת לנכונות המהלך. הוראות שימוש ומגבלות:
-[דאטה ממהלכי AB:2](docs/quality-dataset.md).
+Open **http://127.0.0.1:8787/**. On Windows, `play.cmd` is also available after
+setup. Leave the server running while playing; Ctrl+C stops it. The server
+binds to localhost and stores saves under `runs/human-games/`. These saves are
+separate from the public website's browser saves.
 
-## רגרסיה ליניארית עם קלט מנורמל
+## Build and deploy GitHub Pages
 
-נוספה הכנה של 164 תכונות מספריות לפני המהלך ופלט משוקלל אחד, עם נרמול
-לפי האימון בלבד והפרדה בין משחקי אימון, ולידציה ובדיקה. המודל הראשוני הוא
-רגרסיה ליניארית Ridge. הוראות, בדיקות דליפת מידע ומגבלות:
-[רגרסיה ליניארית](docs/linear-regression.md).
+The public site needs no separate server. Pyodide runs the shared Python core
+and portable model in the browser. With Node.js 22 and the Python environment:
 
-נבדקו גם עשר תצורות של שישה סוגי מודלים קלאסיים. הבחירה נעשתה לפי הוולידציה,
-והתוצאות בבדיקה מעורבות: [השוואת המודלים](docs/model-comparison.md).
-
-## ניסוי תיוגים ב־MLflow
-
-נשמרו שני מודלי Gradient Boosting: תיוג 50% היוריסטיקה ו־50% תוצאה סופית,
-מול תוצאה סופית בלבד. בוצעו משחקים מול F ומשחקים ישירים, ונשמר תיעוד מלא:
-[ניסוי התיוגים מ־14 באוקטובר 2026](docs/label-target-experiment-2026-10-14.md).
-המעקב המקומי זמין ב־[MLflow](http://127.0.0.1:5070/).
-
-## השוואה ללא סימולציות קדימה
-
-להשוואת מדיניות שבוחרת רק מהמצב הנוכחי, משתמשים בפרוטוקול החדש:
-
-```powershell
-.\.ml-venv\Scripts\python.exe -u tools/no_lookahead_experiment.py --output runs/no-lookahead-v2
+```sh
+npm ci --ignore-scripts
+uv run python tools/build_pages.py
+npm run test:wasm
+node tests/check_pages_client.mjs
+python -m http.server 8080 --directory site
 ```
 
-כל המשתתפים מקבלים תצפית ורשימת פעולות בלבד. קריאות להעתקה, יצירה או התקדמות
-של משחק נחסמות בזמן הבחירה. `F_static` הוא בוט יוריסטי חדש ללא חיפוש;
-F ו־AB המקוריים אינם משתתפים בפרוטוקול זה. תוצאות הפיילוט ותיעוד:
-[השוואה ללא חיפוש](docs/no-lookahead-experiment-2026-10-14.md).
+Open **http://localhost:8080/** to preview. The generated `site/` directory is
+ignored by Git. Pushes to `main` trigger the [Pages workflow](.github/workflows/pages.yml),
+which builds, tests and deploys automatically. Pages uses GitHub Actions.
+See [deployment details](docs/github-pages.md) for browser storage and checks.
 
-## למידה מקוונת עם SARSA
+## Simulations and replays
 
-נוסף מודל SGDRegressor ליניארי עם 165 פרמטרים שמתחילים מאפס. המודל עצמו משחק
-מול שלושה F_static בשמונה סביבות מקבילות, ועדכון המשקלים מרוכז בתהליך אחד
-אחרי כ־32 מעברים חדשים. בדיקות משחק נפרדות נעשות עם משקלים קפואים.
-המודל והנרמול נשמרים ב־MLflow. תוצאות הפיילוט, אימות העדכונים והוראות שחזור:
-[ניסוי Online SARSA](docs/online-sarsa-2026-10-14.md).
+Generate reproducible games, save engine states and export HTML replays:
 
-אפשר להמשיך ממשקלים ומצב אופטימייזר שמורים עם `--resume-from`, ולבחור זרעים
-חדשים דרך `--training-base-seed` ו־`--evaluation-base-seed`. לוחות כל ניסויי המקור
-מוחרגים. [המשך אימון: עוד 500 משחקים](docs/online-sarsa-continued-500-v2.md)
-לא הראה שיפור: 21/200 לפני לעומת 19/200 אחרי על אותם לוחות חדשים. שתי הגרסאות נשמרו.
+```sh
+uv run python -m catanzero --seed 42 --save-games --replay
+uv run python -m catanzero --games 100 --seed 42
+uv run python -m catanzero --players 2 --seed 42 --trace
+uv run python -m catanzero.viewer runs/my-run/game_0000.json
+```
 
-[המשך עם חקירה מופחתת מ־10% ל־5%](docs/online-sarsa-low-exploration-500-v3.md):
-עוד 500 משחקי אימון. בבדיקה חדשה על אותם 200 לוחות לפני ואחרי, שיעור הניצחון
-עלה מ־20/200 ל־30/200 (10%→15%). ההפרש לא מובהק במבחן המזווג (p≈0.132),
-ולכן לפי כלל ההמשך שנקבע מראש לא נפתח סבב נוסף. גרסה 3 נשמרה ב־MLflow.
+On Windows, `run.cmd` starts simulations and `watch.cmd` opens saved replays.
+The simulation CLI defaults to four random players, separately from the human
+game whose opponents all use Model 402.
 
-המנוע הוא פרויקט חיצוני ברישיון GPL-3.0-or-later. קוד המנוע מותקן כתלות,
-ואינו מועתק לקוד המקור של CatanZero. תיעוד נוסף: [Catanatron](https://docs.catanatron.com/).
+Outputs go into a new `runs/` directory: configuration, per-game results and
+a summary, plus full states and HTML replays when requested. Full states include
+hidden cards and random-generator state for research; they are not uploaded.
+Games stopped at a safety limit have no winner and are not counted as wins.
+
+The engine is pinned to Catanatron commit
+`ecf931181b9a65bb4116a2153fb78c16f1438e00`. Reproducibility requires matching
+engine versions, settings and Python environments.
+
+## Verification
+
+- **12 engine/HTTP checks** passed: legality, hidden-information filtering,
+  full-game completion, save restoration and bank/port trades.
+- **29 dataset/feature checks** passed after extracting the shared core.
+- Portable inference matched the native libraries on **1,573 candidates**,
+  with identical selected actions and maximum score error below `2.67e-15`.
+- Real WebAssembly execution checked **225 actions** across 2/3/4-player games,
+  stale-action rejection and save/restore consistency.
+- The actual worker and an IndexedDB test implementation checked reload,
+  continued play, retained saves and storage-denial handling.
+- Application-code integration exercised **120 live HTTP actions**.
+
+These checks do not constitute rendered browser or physical-device visual QA.
+Run the native game tests with:
+
+```sh
+uv run --with-requirements requirements-play.txt pytest tests/test_play_server.py -q
+```
+
+## Project layout
+
+| Path | Contents |
+|---|---|
+| `src/catanzero/play_web/` | Shared UI and worker adapter |
+| `src/catanzero/play_core.py` | Shared game session and public player view |
+| `src/catanzero/browser_game.py` | Browser-local requests and persistence |
+| `src/catanzero/play_server.py` | Optional localhost server |
+| `models/champion402/` | Selected model and portable export |
+| `tools/` | Build, training, evaluation and audit utilities |
+| `tests/` | Engine, feature, policy and application checks |
+| `docs/` | Experiment history and operating instructions |
+| `licenses/` | Third-party license texts |
+
+Generated experiments, datasets, MLflow data, personal saves, virtual
+environments, dependencies, logs and caches are excluded from Git. Historical
+local data remains under `runs/`; some research documents reference local-only
+artifacts.
+
+Research documentation covers [datasets](docs/dataset-pilot.md),
+[weighted labels](docs/weighted-scoring.md), [search labels](docs/search-labels.md),
+[linear regression](docs/linear-regression.md),
+[model comparisons](docs/model-comparison.md),
+[online SARSA](docs/online-sarsa-2026-10-14.md),
+[no-lookahead evaluation](docs/no-lookahead-experiment-2026-10-14.md) and
+[402 training and evaluation](docs/tree-policy-depth10-native-f.md).
+Some historical documents are in Hebrew.
+
+## License and attribution
+
+This is an unofficial fan project, not affiliated with CATAN GmbH,
+Catan Universe or Colonist. Board symbols are drawn in SVG; third-party game
+screenshots are not published as game assets.
+
+Original CatanZero code retains the MIT license in [LICENSE](LICENSE).
+The combined game distribution includes Catanatron under GPL-3.0-or-later;
+see [COPYING](COPYING) and [third-party notices](THIRD_PARTY_NOTICES.md).
+The deployed website provides a source archive and license notices.
